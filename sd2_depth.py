@@ -14,7 +14,29 @@ os.environ["PYOPENGL_PLATFORM"] = "egl"
 
 style_prompt = "christmas style"
 
-def render_mesh_to_image(obj_path, azimuth=0, elevation=0, distance=2):
+def normalize_mesh(mesh):
+    """Normalize a trimesh object so that it fits within a unit bounding box."""
+    # Get the bounding box of the mesh
+    bbox_min = mesh.bounds[0]
+    bbox_max = mesh.bounds[1]
+
+    # Calculate the center of the bounding box
+    bbox_center = (bbox_min + bbox_max) / 2.0
+
+    # Translate the mesh so that its centroid is at the origin
+    mesh.apply_translation(-bbox_center)
+
+    # Calculate the scale to fit the mesh into a unit bounding box
+    bbox_size = bbox_max - bbox_min
+    max_dimension = np.max(bbox_size)
+
+    # Scale the mesh so that the largest dimension is 1
+    scale_factor = 1.0 / max_dimension
+    mesh.apply_scale(scale_factor)
+
+    return mesh
+
+def render_mesh_to_image(obj_path, azimuth=0, elevation=0, distance=1):
     """Render an OBJ file using pyrender and return the rendered image.
     obj_path (str) : Path to the OBJ file
     azimuth (float) : Azimuth angle in degrees
@@ -28,6 +50,8 @@ def render_mesh_to_image(obj_path, azimuth=0, elevation=0, distance=2):
     if isinstance(mesh, trimesh.Scene):
         # If it's a Scene, combine all geometries into a single Trimesh object
         mesh = trimesh.util.concatenate(mesh.dump())
+        
+    mesh = normalize_mesh(mesh)
 
     # Set up the scene
     scene = pyrender.Scene()
