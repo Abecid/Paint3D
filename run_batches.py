@@ -20,8 +20,8 @@ def main():
         render_path = "paint3d/config/train_config_paint3d.py"
         updated_config_path = f"objaverse/{uid}/runtime_config.yaml"
         
-        if not os.path.exists(config_path):
-            print(f"Config file missing: {config_path}")
+        if not os.path.exists(config_path) or not os.path.exists(mesh_path):
+            print(f"Missing: {mesh_path}")
             continue
         
         os.makedirs(output_path, exist_ok=True)
