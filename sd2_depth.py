@@ -15,7 +15,12 @@ os.environ["PYOPENGL_PLATFORM"] = "egl"
 style_prompt = "christmas style"
 
 def render_mesh_to_image(obj_path, azimuth=0, elevation=0, distance=2):
-    """Render an OBJ file using pyrender and return the rendered image."""
+    """Render an OBJ file using pyrender and return the rendered image.
+    obj_path (str) : Path to the OBJ file
+    azimuth (float) : Azimuth angle in degrees
+    elevation (float) : Elevation angle in degrees
+    distance (float) : Distance of the camera from the object
+    """
     # Load the 3D model
     mesh = trimesh.load(obj_path)
 
@@ -29,12 +34,21 @@ def render_mesh_to_image(obj_path, azimuth=0, elevation=0, distance=2):
     mesh = pyrender.Mesh.from_trimesh(mesh)
     scene.add(mesh)
 
+    azimuth_rad = np.radians(azimuth)
+    elevation_rad = np.radians(elevation)
+
     # Set up the camera
     camera = pyrender.PerspectiveCamera(yfov=np.pi / 3.0)
+    # Calculate the camera position in Cartesian coordinates
+    cam_x = distance * np.cos(elevation_rad) * np.sin(azimuth_rad)
+    cam_y = distance * np.sin(elevation_rad)
+    cam_z = distance * np.cos(elevation_rad) * np.cos(azimuth_rad)
+    
+    # Create the camera pose matrix
     camera_pose = np.array([
-        [1.0, 0.0, 0.0, 0.0],
-        [0.0, np.cos(elevation), -np.sin(elevation), distance],
-        [0.0, np.sin(elevation), np.cos(elevation), distance],
+        [1.0, 0.0, 0.0, cam_x],
+        [0.0, 1.0, 0.0, cam_y],
+        [0.0, 0.0, 1.0, cam_z],
         [0.0, 0.0, 0.0, 1.0]
     ])
     scene.add(camera, pose=camera_pose)
