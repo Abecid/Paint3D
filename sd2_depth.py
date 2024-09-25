@@ -10,12 +10,19 @@ from diffusers import StableDiffusionDepth2ImgPipeline
 import trimesh
 import pyrender
 
+os.environ["PYOPENGL_PLATFORM"] = "egl"
+
 style_prompt = "christmas style"
 
 def render_mesh_to_image(obj_path, azimuth=0, elevation=0, distance=2):
     """Render an OBJ file using pyrender and return the rendered image."""
     # Load the 3D model
     mesh = trimesh.load(obj_path)
+
+    # Check if we have a Trimesh object or a Scene
+    if isinstance(mesh, trimesh.Scene):
+        # If it's a Scene, combine all geometries into a single Trimesh object
+        mesh = trimesh.util.concatenate(mesh.dump())
 
     # Set up the scene
     scene = pyrender.Scene()
@@ -65,12 +72,16 @@ def main():
         if not os.path.exists(obj_path):
             print(f"Obj file missing: {obj_path}")
             continue
-        
-        try:
-            init_image = render_mesh_to_image(obj_path, azimuth=0, elevation=0)
-        except Exception as e:
-            print(f"Error rendering image for {name}: {e}")
-            continue
+            
+        init_image = render_mesh_to_image(obj_path, azimuth=0, elevation=0)
+
+        # try:
+        #     init_image = render_mesh_to_image(obj_path, azimuth=0, elevation=0)
+        # except Exception as e:
+        #     print(f"Error rendering image for {name}: {e}")
+        #     continue
+        # else:
+        #     print(f"Rendered image for {name}")
 
         # Run the Stable Diffusion depth-to-image pipeline
         prompt = f"3D object of {description}"

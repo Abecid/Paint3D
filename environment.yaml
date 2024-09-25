@@ -32,3 +32,5 @@ dependencies:
     - trimesh==3.20.2
     - xatlas==0.0.7
     - pyrender==0.1.45
+    - PyOpenGL==3.1.0
+    - PyOpenGL_accelerate==3.1.7
