@@ -312,6 +312,7 @@ if __name__ == '__main__':
     mesh_path_list = glob.glob(os.path.join(_VERSIONED_PATH, "glbs", "*", "*.glb"))
     convert_success = 0
     for mesh_path in tqdm(mesh_path_list, desc="Converting glb to obj"):
+        print(f"Processing: {mesh_path}")
         uid = mesh_path.split("/")[-1].split(".")[0]
         mesh_name = uid_to_name.get(uid, 'UID not found').replace(' ', '_')
         
