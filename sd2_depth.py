@@ -36,8 +36,9 @@ def normalize_mesh(mesh):
 
     return mesh
 
-def render_mesh_to_image(obj_path, azimuth=0, elevation=0, distance=1):
-    """Render an OBJ file using pyrender and return the rendered image.
+def render_mesh_to_image(obj_path, azimuth=0, elevation=0, distance=2):
+    """
+    Render an OBJ file using pyrender and return the rendered image.
     obj_path (str) : Path to the OBJ file
     azimuth (float) : Azimuth angle in degrees
     elevation (float) : Elevation angle in degrees

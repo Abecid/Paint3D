@@ -307,6 +307,67 @@ if __name__ == '__main__':
             ]
         }
     }
+    
+    uv_config_data = {
+        'inpaint': {
+            'sd_model_key': 'stable-diffusion-v1-5/stable-diffusion-v1-5',
+            'image_path': None,
+            'mask_path': None,
+            'ip_adapter_image_path': None,
+            'prompt': 'UV map, monkey head, Sci-Fi digital painting, high quality',
+            'negative_prompt': 'strong light, Bright light, intense light, dazzling light, brilliant light, radiant light, Shade, darkness, silhouette, dimness, obscurity, shadow, glasses',
+            'seed': -1,
+            'width': 1024,
+            'height': 1024,
+            'num_images_per_prompt': 1,
+            'guidance_scale': 3.0,
+            'num_inference_steps': 20,
+            'denoising_strength': 1.0,
+            'controlnet_units': [
+                {
+                    'preprocessor': 'none',
+                    'controlnet_key': 'GeorgeQi/Paint3d_UVPos_Control',
+                    'condition_image_path': None,
+                    'weight': 1.0
+                },
+                {
+                    'preprocessor': 'inpaint_global_harmonious',
+                    'controlnet_key': 'lllyasviel/control_v11p_sd15_inpaint',
+                    'condition_image_path': None,
+                    'weight': 0.5
+                }
+            ]
+        },
+        'img2img': {
+            'sd_model_key': 'GeorgeQi/realisticVisionV13_v13',
+            'image_path': None,
+            'ip_adapter_image_path': None,
+            'prompt': 'UV map, (Sci-Fi digital painting:1.3), high quality, best quality',
+            'negative_prompt': 'blur, low quality, noisy image, over-exposed, shadow',
+            'seed': -1,
+            'width': 1024,
+            'height': 1024,
+            'num_images_per_prompt': 1,
+            'guidance_scale': 7.0,
+            'num_inference_steps': 20,
+            'denoising_strength': 0.75,
+            'controlnet_units': [
+                {
+                    'preprocessor': 'none',
+                    'controlnet_key': 'GeorgeQi/Paint3d_UVPos_Control',
+                    'condition_image_path': None,
+                    'weight': 1.0
+                },
+                {
+                    'preprocessor': 'none',
+                    'controlnet_key': 'lllyasviel/control_v11f1e_sd15_tile',
+                    'condition_image_path': None,
+                    'weight': 1.0
+                }
+            ]
+        }
+    }
+
 
     
     mesh_path_list = glob.glob(os.path.join(_VERSIONED_PATH, "glbs", "*", "*.glb"))
@@ -317,14 +378,19 @@ if __name__ == '__main__':
         mesh_name = uid_to_name.get(uid, 'UID not found').replace(' ', '_')
         
         description = uid_to_description.get(uid, 'Description not found')
-        config_data['txt2img']['prompt'] = f"Photo of a {description}"
+        config_data['txt2img']['prompt'] = f"turn around, {description}"
         config_data['mesh_name'] = mesh_name
+        uv_config_data['inpaint']['prompt'] = f"UV map, {description}, high quality"
+        uv_config_data['img2img']['prompt'] = f"UV map, {description}, high quality"
         
         mesh_name = uid # Set the directory name as uid
         os.makedirs(f"{BASE_PATH}/{mesh_name}", exist_ok=True)
         config_path = f"{BASE_PATH}/{mesh_name}/config.yaml"
+        uv_config_path = f"{BASE_PATH}/{mesh_name}/uv_config.yaml"
         with open(config_path, 'w') as yaml_file:
             yaml.dump(config_data, yaml_file, default_flow_style=False)
+        with open(uv_config_path, 'w') as yaml_file:
+            yaml.dump(uv_config_data, yaml_file, default_flow_style=False)
         os.system(f"mv {mesh_path} {BASE_PATH}/{mesh_name}/model.glb")
         print(mesh_name)
         convert_success += glb2obj(f"{BASE_PATH}/{mesh_name}/model.glb", f"{BASE_PATH}/{mesh_name}/model.obj")
